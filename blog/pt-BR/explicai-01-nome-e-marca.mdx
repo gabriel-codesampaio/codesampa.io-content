@@ -1,0 +1,76 @@
+---
+title: 'Explicaí #1: nome e marca de um projeto open source, decididos junto com a IA'
+description: 'Começamos a construir um gerador de manuais open source usando IA em cada etapa. Na primeira parte, o nome, as checagens de disponibilidade, uma entrevista de marca e o brand book publicado.'
+date: 2026-10-28
+published: false
+tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí']
+comments: false
+---
+
+Quem já precisou fazer o manual de um sistema conhece o roteiro: tirar print de cada tela, desenhar setinha, escrever o passo a passo, exportar para PDF e, quando a tela muda, fazer tudo de novo. Leva dias.
+
+Decidimos construir uma ferramenta para isso e documentar a construção aqui no blog, do zero. São dois projetos open source:
+
+- **Explicaí Studio**, o app que monta o manual: captura a tela, marca os elementos com números, escreve os passos e exporta em PDF, HTML e Markdown.
+- **Explicaí Agent**, um servidor MCP que deixa uma IA operar o Studio sozinha: abrir o sistema, capturar as telas e montar o manual.
+
+A IA participa de cada etapa, inclusive das que não são código. Esta primeira parte trata do nome e da marca. Ainda não tem nenhuma linha do app.
+
+![Prévia do Explicaí: o nome em branco sobre azul, o slogan e três marcadores numerados](https://gabriel-codesampaio.github.io/explicai-brandbook/logo/social-preview.png)
+
+## Escolhendo o nome com dados
+
+Pedimos ao Claude Code uma lista de nomes com quatro critérios: servir para os dois projetos (`nome` e `nome-mcp`), funcionar em português e em inglês, não esbarrar em marcas conhecidas e estar livre.
+
+O último critério a IA não chuta. Ela escreveu um script curto que consulta o registro do npm e a API do GitHub para cada candidato. A maioria caiu na hora: Passo, Roteiro, Leme, Tutoria, Snapdoc e outros já tinham dono no GitHub. Depois de duas rodadas, sobraram cinco: Manualis, Explicaí, Faroldoc, Manualia e ManualKit.
+
+Ficamos com **Explicaí**. Vem do "explica aí?" de quem trava num sistema, e o "IA" já está dentro da palavra.
+
+Depois vieram os domínios, consultados pelo protocolo RDAP. O `.dev`, o `.io` e o `.org` estavam livres. O `.com` está estacionado, o `.com.br` já tem dono e o `.app` é usado por um app educacional com nome parecido, de outro ramo. Para evitar confusão, a grafia "ExplicAI", com AI maiúsculo, está proibida na marca. A busca no INPI, nas classes de software, ainda está pendente: a base exige login, e essa parte vamos fazer na mão.
+
+## A primeira marca saiu rápido demais
+
+Com o nome definido, a IA montou em uma rodada um brand book completo: logo, paleta, tipografia, tom de voz e aplicações. O visual ficou bom. O texto, nem tanto. Lendo com calma, dava para perceber que tinha sido escrito por IA: frases de efeito, contrastes forçados do tipo "não é X, é Y", tudo em grupos de três.
+
+Instalamos quatro skills para o Claude Code: **humanizer**, que reescreve texto com cara de IA a partir do guia de sinais de escrita por IA da Wikipédia; **impeccable** e **hallmark**, para revisão de design; e **ponytail**, que empurra o agente para a solução mais simples no código.
+
+Antes de instalar, lemos o que cada uma faz. Skill roda com as mesmas permissões do agente, e duas delas trazem hooks que executam sozinhos. Uma tem um webhook opcional que manda métricas de uso para fora. Como vem desligado, mantivemos assim.
+
+Faltava o principal: a marca tinha sido proposta pela IA, sem ninguém dizer o que o projeto quer ser. Pela busca de skills (`npx skills find brand`) chegamos a uma que conduz uma entrevista de marca em sete módulos: propósito, posicionamento, público, personalidade, voz, narrativa e o papel do fundador.
+
+## A entrevista: menos pergunta aberta, mais opção para escolher
+
+O primeiro módulo foi no formato clássico, uma pergunta aberta por vez, com "por quê?" até chegar na motivação de fundo. Funcionou por umas oito perguntas. Na nona, a resposta foi "eu cansei de explicação kk". Antes disso, uma pergunta do tipo "se o projeto acabasse em cinco anos, do que as pessoas sentiriam falta?" recebeu um "que pergunta esquisita, pula essa".
+
+Mudamos o formato. A IA passou a trazer três ou quatro opções prontas, escritas a partir do que já tinha ouvido, e a resposta virou uma letra. Os seis módulos seguintes saíram bem mais rápido que o primeiro. Na prática, a IA faz o trabalho de redigir e quem decide só escolhe e ajusta.
+
+O que ficou decidido:
+
+- **Propósito:** documentar um sistema não pode custar mais que construí-lo.
+- **Categoria e diferencial:** construtor de manuais, open source e gratuito. E uma regra: nunca comparar com concorrentes.
+- **Público:** dev solo ou equipe pequena de SaaS, software house e redator técnico, com o mesmo peso. Eles procuram uma ferramenta em três momentos: quando o sistema vai para o ar sem manual, quando o cliente pede o manual na entrega e quando a tela muda e o manual fica velho.
+- **Personalidade:** o professor que você gostava. Sabe muito, explica com calma e solta uma piada de vez em quando.
+- **Voz:** formal no app e na documentação, solta no blog. Os manuais gerados terão tom configurável: profissional, tranquilo ou um tom descrito em texto.
+- **Idioma:** português e inglês desde o primeiro dia. O slogan fica em português nas duas versões: "Tira o print, que o Explicaí explica."
+
+Uma ideia apareceu no meio da conversa e entrou para o caderno de ideias do projeto: usar o MCP do Chrome DevTools para seguir os passos de um manual dentro do sistema e avisar quando algo quebrou. Isso resolve o terceiro momento, o do manual velho.
+
+## O brand book v0.2
+
+Com a entrevista pronta, refizemos o brand book. O texto passou pelo humanizer e o visual pelo detector do impeccable, que encontrou problemas reais: números com pouco contraste nos marcadores do tema escuro e rótulos menores que 11 px. Também acusou falsos positivos. Medimos o contraste de cada texto da página no navegador, nos dois temas, e o resto estava dentro do padrão. Registramos a exceção com o motivo, para ninguém precisar refazer essa conferência.
+
+O logo é o próprio "í". O quadro azul representa a tela, a haste do i é o conteúdo e o acento amarelo funciona como ponteiro, que mostra onde olhar. Para os arquivos funcionarem sem a fonte instalada, a IA converteu as letras da Archivo em contornos vetoriais com a biblioteca `fonttools` e gerou os PNGs com o Chrome em modo headless.
+
+O brand book está publicado no GitHub Pages: [gabriel-codesampaio.github.io/explicai-brandbook](https://gabriel-codesampaio.github.io/explicai-brandbook/).
+
+## O que aprendemos nesta etapa
+
+A IA acelera muito a parte de produzir. Lista de nomes, script de checagem, brand book, conversão de fonte: tudo saiu em minutos. Decidir continua sendo trabalho de quem está construindo o projeto. A primeira versão da marca era bonita e genérica justamente porque ninguém tinha dito o que ela deveria ser.
+
+Opção pronta rende mais que pergunta aberta. Com alternativas na tela, decidir fica rápido, e nada impede de rejeitar todas.
+
+Skill de terceiro é código de terceiro. Leia antes de instalar, principalmente os hooks.
+
+## Próximo passo
+
+Na parte 2, montamos os repositórios `explicai` e `explicai-mcp` com a estrutura de projeto do Claude Code: `CLAUDE.md`, regras, skills e subagentes próprios. Depois disso começa o código.
