@@ -1,0 +1,73 @@
+---
+title: 'Explicaí #3: os testes acharam bugs, e um deles se passava por teste instável'
+description: 'Antes de exportar o manual, testamos o Explicaí Studio de quatro jeitos. Os testes acharam bugs reais, um deles disfarçado de teste instável. Depois veio a exportação em HTML, PDF e Markdown.'
+date: 2026-10-29
+published: false
+tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí', 'Testes']
+comments: false
+---
+
+Na parte 2 o Studio deixou de ter cara de feito por IA, pelo menos na opinião da crítica de design: a nota foi de 18 para 25 de 40. O próximo passo óbvio era a exportação, que transforma o editor num produto que entrega um manual. Antes disso, decidimos testar o que já existia. Exportar um manual quebrado só espalharia o problema.
+
+## Quatro jeitos de testar
+
+Testamos o Studio de quatro formas, cada uma atrás de um tipo de erro diferente.
+
+A primeira foi a API, chamada direto, sem a tela. Achou dois bugs. Uma rota que não existia devolvia a página HTML do editor com status 200, em vez de um erro. E enviar uma imagem acima de 20 MB deixava a conexão pendurada, sem resposta nenhuma.
+
+A segunda foi mexer na pasta do manual por fora, como alguém faria num merge do git ou editando à mão. Achou os bugs mais sérios. Um `manual.json` estragado impedia de abrir todos os manuais, não só aquele. Um arquivo de página apagado derrubava o manual inteiro, e um erro de digitação no cabeçalho de uma página também. Agora a página com problema aparece na árvore com um aviso, e o resto abre normalmente.
+
+A terceira foram testes de ponta a ponta com o Playwright, num Chrome de verdade: criar o manual, escrever, colar um print, marcar a imagem, excluir e desfazer, reordenar pelo teclado, criar link entre páginas.
+
+A quarta foi desempenho. Geramos um manual com 330 páginas e 300 imagens. Abrir o manual levou entre 50 e 95 ms, trocar de página uns 120 ms, e renomear uma página atualizando os links das outras 329 levou cerca de 100 ms. Não precisou de ajuste.
+
+## O teste que falhava às vezes
+
+Um dos testes de ponta a ponta, o do link, falhou uma vez em cinco. Rodamos de novo e passou. Rodamos de novo e passou. A tentação é chamar de "teste instável" e colocar repetição automática.
+
+Não colocamos. Repetição esconde bug de verdade, e a falha tinha uma pista: o botão de link aparecia ativo, mas não havia link nenhum no texto.
+
+Mais tarde, numa rodada de 8 repetições, falhou uma vez de novo. Tentamos uma correção baseada num palpite, e o teste piorou: 7 falhas em 15. O palpite estava errado, mas pelo menos a falha ficou fácil de reproduzir. Montamos um teste que registrava a seleção do editor a cada passo, e a resposta apareceu: quando a pessoa seleciona o texto com Shift+Home e aperta Ctrl+K logo em seguida, às vezes o editor ainda não registrou a seleção nova. O balão de link abria com a seleção vazia, e o link era aplicado a um trecho de tamanho zero, sem aviso.
+
+Em humanos, isso pega quem usa o teclado rápido, que é justamente quem mais usa atalho. A correção foi ler a seleção direto do navegador no momento do Ctrl+K. Depois disso, 15 de 15.
+
+## O Markdown que encolhia a cada gravação
+
+O outro bug escondido apareceu quando fomos criar o bloco de passo: número, print do passo e um "Resultado:" com o que a pessoa deve ver depois. No arquivo, isso continua sendo uma lista numerada comum, com a imagem e a citação dentro do item.
+
+Escrevemos um teste que abre e salva esse passo várias vezes. A indentação da imagem caía de 3 espaços para 1, depois para 0. A causa estava no Tiptap: dentro de um item de lista, ele só deixava linha em branco antes de parágrafo. A imagem e a citação grudavam no texto de cima e, a cada abertura, perdiam um pouco da estrutura.
+
+O conteúdo não sumia, mas o arquivo ia piorando, e "abrir e salvar nunca degrada o conteúdo" é um dos princípios do produto. Trocamos a forma de escrever o item de lista para separar todos os blocos por linha em branco. Agora o Markdown sai igual ao que entrou.
+
+## Duas skills para ler o código
+
+Também pedimos uma análise do código React. Usamos duas skills da Vercel: uma de boas práticas de React e outra de padrões de composição de componentes.
+
+Elas acharam coisas pequenas e reais:
+
+- duas dependências instaladas pelo shadcn que ninguém usava, e que iriam junto para quem rodasse `npx explicai`;
+- efeitos do React que só copiavam um estado para outro;
+- um `forwardRef` que o React 19 já não precisa;
+- o estado do Studio descendo de componente em componente por props.
+
+Uma sugestão nós medimos e recusamos: carregar a janela de marcação de imagem só quando ela fosse aberta. Ela pesava 3 KB comprimidos, e o ganho não pagava a complexidade.
+
+## A crítica de novo, e a tela larga
+
+Rodamos a crítica de design uma terceira vez: 27 de 40. O ponto mais forte da reclamação foi a responsividade. Num monitor de 2560 px, o texto ficava numa coluna estreita no meio, com uns 600 px vazios de cada lado. Em tela dividida, que é como alguém escreve manual com o sistema aberto ao lado, a barra lateral ocupava quase um terço da tela.
+
+Agora a coluna cresce em tela larga para os prints e as tabelas, e o texto corrido continua numa largura boa de ler. Abaixo de 1024 px, as páginas viram uma gaveta, e Ctrl+\ esconde ou mostra a barra lateral.
+
+## Exportação
+
+Com a base mais firme, veio a exportação. O HTML é um arquivo só, com sumário numerado e as marcações desenhadas sobre os prints; as áreas clicáveis viram links. O PDF é esse mesmo HTML impresso pelo Chrome ou pelo Edge que já está na máquina, sem nada para instalar. E o Markdown sai num arquivo único pensado para quem lê com IA: depois de cada print vem a legenda em texto, porque o modelo não vê a imagem, mas lê o que ela aponta.
+
+Junto vieram as versões de cada página, para escolher qual entra no manual final, e um fluxo simples de aprovação: rascunho, em revisão, aprovado e publicado. A exportação pode levar só as páginas aprovadas.
+
+A interface também ganhou inglês. A regra que adotamos: a tela segue o idioma de quem usa, e o conteúdo segue o idioma do manual. Quem usa o Studio em inglês num manual em português continua vendo "Resultado:" e "Sumário" no manual.
+
+## Próximo passo
+
+Nesta fase o Studio passou de 62 para 91 testes de unidade e de 6 para 10 de ponta a ponta. Cada bug descrito aqui virou um teste, para não voltar.
+
+Na próxima parte publicamos a versão 0.1 no npm, para o `npx explicai` funcionar em qualquer máquina, e começamos o Explicaí Agent, que monta manuais pela IA no mesmo formato.
