@@ -1,0 +1,61 @@
+---
+title: 'Explicaí #2: o editor funcionou, mas tinha cara de feito por IA'
+description: 'A primeira versão do Explicaí Studio já salvava manuais em Markdown. Ainda parecia qualquer outro app gerado por IA. Contamos como usamos a própria IA para medir o problema e decidir o que mudar.'
+date: 2026-10-28
+published: false
+tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí', 'Design']
+comments: false
+---
+
+Na parte 1 definimos o nome e a marca. Nesta parte o Explicaí Studio ganhou código: um editor que roda no seu computador com `npx explicai`, organiza o manual numa árvore de páginas e salva cada página como um arquivo Markdown numa pasta.
+
+Funcionou no primeiro dia. O problema apareceu quando olhamos a tela com calma.
+
+## A primeira versão e o primeiro bug
+
+O editor usa o Tiptap, com a extensão oficial de Markdown. Um servidor local em Node lê e grava os arquivos, e a interface em React conversa com ele. Testamos tudo no navegador, do jeito que alguém usaria: criar um manual, criar uma página, escrever uma lista de passos e colar um print dentro dela.
+
+Ao recarregar a página, a imagem tinha sumido. O print estava dentro do segundo passo da lista, o Markdown gravado deixava a imagem colada ao texto do passo, e o editor esperava uma imagem como bloco separado. Na volta, ele simplesmente descartava a imagem.
+
+Para um produto cujo princípio é "nada se perde", foi o bug certo para encontrar cedo. A correção foi tratar a imagem como elemento de linha, que é como o Markdown a representa. Depois criamos um teste que abre e salva o mesmo Markdown várias vezes e confere que nada sumiu no caminho.
+
+## Pedimos arquitetura, não só código funcionando
+
+Com o editor funcionando, pedimos à IA para seguir SOLID, KISS e DRY e separar bem as pastas. O código tinha crescido rápido e alguns arquivos já faziam coisas demais.
+
+A refatoração separou o projeto em camadas. O núcleo cuida só do formato do manual e do disco. O servidor virou uma tabela de rotas, com um arquivo por recurso, então uma rota nova entra sem mexer no roteador. A interface ganhou pastas para código sem React, para estado e para cada funcionalidade. O `App.tsx`, que tinha perto de 300 linhas, ficou com umas 45.
+
+A regra ficou gravada num arquivo de regras do Claude Code (`.claude/rules/architecture.md`). Assim ela vale para as próximas sessões, sem precisar repetir o pedido. Ficou valendo também uma ressalva: quando os princípios entram em conflito, vence o mais simples, e nada de abstração antes de existir um segundo uso real.
+
+## "Ainda tá com muita cara de feito por IA"
+
+Foi essa a reação ao ver o print do Studio. A tela estava limpa e funcionava, mas parecia qualquer editor gerado por IA.
+
+Em vez de mexer no visual no chute, usamos uma skill de design para o Claude Code chamada impeccable. Ela começa gravando um `PRODUCT.md` com o público, o propósito e as regras da marca, tirados da entrevista de marca da parte 1. Depois roda uma crítica com dois agentes separados, que não veem o trabalho um do outro. Um faz a revisão de design. O outro roda um detector automático no código e injeta o mesmo detector na página aberta no navegador.
+
+A nota foi 18 de 40, numa avaliação baseada nas heurísticas de usabilidade de Nielsen. A revisão apontou sinais bem concretos:
+
+- a barra de ferramentas usava texto no lugar de ícones: "T1 T2 T3", "N", "</>", "{ }";
+- a barra lateral, a área de edição e a seleção eram tons do mesmo azul-marinho;
+- a marca só aparecia no título da página, e o resto era cinza em 13 px;
+- o amarelo marca-texto, a cor mais característica do brand book, nem aparecia no tema claro;
+- o diferencial do produto, as marcações numeradas nas imagens, não aparecia em lugar nenhum;
+- o arquivo `.md` e o momento em que ele era salvo ficavam escondidos, justo num produto que promete "seu manual é uma pasta de Markdown no git".
+
+O detector achou duas coisas. Uma era falso positivo: ele marcou a linha fina à esquerda das citações como "faixa decorativa", mas é a marcação comum de citação. A outra era real: no tema escuro, o título da página selecionada tinha contraste de 4,3:1, abaixo do mínimo de 4,5:1. E ele deixou passar um problema que a revisão pegou: o texto de exemplo do campo de título estava praticamente invisível.
+
+Essa divisão foi o que mais aprendemos aqui. O detector é bom em regra mecânica e erra o contexto. A revisão entende o produto e não mede contraste. Precisamos das duas.
+
+## Tailwind e shadcn, com uma condição
+
+Três dos cinco problemas da crítica pedem componentes que dão trabalho fazer direito: menu de opções em cada página, balão para editar link, aviso com "Desfazer" depois de excluir e menu `/` para inserir blocos. Todos precisam funcionar bem com teclado e leitor de tela.
+
+Por isso decidimos migrar a interface para Tailwind e shadcn. O shadcn monta esses componentes sobre o Radix, que já resolve foco, teclado e acessibilidade. E o momento era bom, porque o CSS ainda era pequeno.
+
+O risco estava claro desde o início. O visual padrão do shadcn, com fonte Inter, cinza e cantos arredondados em tudo, é justamente a aparência de boa parte dos apps gerados por IA hoje. Trocar de ferramenta não resolveria a reclamação, só a trocaria de lugar.
+
+A condição foi usar o shadcn pelo comportamento. Cores, fontes e raios do Tailwind vêm das variáveis do brand book: cobalto, marca-texto, nanquim, Archivo e Atkinson. O texto dentro do editor continua com um CSS próprio, porque ali é conteúdo do manual, e não interface.
+
+## Próximo passo
+
+Agora vamos aplicar as correções dos cinco problemas em cima do Tailwind e do shadcn, conferir tudo no navegador nos dois temas e rodar a crítica de novo. Na próxima parte mostramos se a nota mudou e o que ainda ficou com cara de IA.
