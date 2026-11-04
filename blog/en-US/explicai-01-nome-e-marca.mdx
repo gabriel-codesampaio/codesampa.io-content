@@ -1,8 +1,8 @@
 ---
 title: 'Explicaí #1: naming and branding an open source project together with AI'
 description: 'We started building an open source manual generator, using AI at every step. Part one covers the name, the availability checks, a brand interview and the published brand book.'
-date: 2026-10-28
-published: false
+date: 2026-11-03
+published: true
 tags: ['AI Integration', 'Claude Code', 'Open Source', 'Explicaí']
 comments: false
 ---
@@ -11,7 +11,7 @@ Anyone who has had to write a manual for a software system knows the routine: ta
 
 We decided to build a tool for that and document the whole build here on the blog, from scratch. There are two open source projects:
 
-- **Explicaí Studio**, the app that builds the manual: it captures the screen, marks elements with numbers, writes the steps and exports to PDF, HTML and Markdown.
+- **Explicaí Studio**, the app that builds the manual: it takes your screenshots, marks elements with numbers, organizes and formats the steps you write, and exports to PDF, HTML and Markdown.
 - **Explicaí Agent**, an MCP server that lets an AI run the Studio on its own: open the system, capture the screens and put the manual together.
 
 AI takes part in every step, including the ones that have nothing to do with code. This first part is about the name and the brand. There isn't a single line of the app yet.
@@ -51,7 +51,7 @@ What we decided:
 - **Audience:** solo devs or small SaaS teams, software agencies and technical writers, all with equal weight. They look for a tool at three moments: when the system goes live without a manual, when the client asks for the manual at delivery, and when a screen changes and the manual goes stale.
 - **Personality:** the teacher you liked. Knows a lot, explains calmly and cracks a joke now and then.
 - **Voice:** formal in the app and the docs, relaxed on the blog. Generated manuals will have a configurable tone: professional, casual, or a tone described in plain text.
-- **Language:** Portuguese and English from day one. The slogan stays in Portuguese in both versions: "Tira o print, que o Explicaí explica." (take the screenshot and Explicaí explains it).
+- **Language:** Portuguese and English from day one. Each language has its own slogan. In Portuguese: "Tira o print e explica. O Explicaí monta o manual." In English: "Snap it, explain it. Explicaí builds the manual." It used to be "Tira o print, que o Explicaí explica.", but that line suggested Explicaí writes on its own. The person writes; Explicaí organizes, formats and exports. We changed it on November 3, 2026, and the same day the English version got its own slogan instead of reusing the Portuguese one.
 
 One idea came up mid-conversation and went into the project's idea notebook: use the Chrome DevTools MCP to follow a manual's steps inside the system and flag when something broke. That covers the third moment, the stale manual.
 
