@@ -1,8 +1,8 @@
 ---
 title: 'Explicaí #1: nome e marca de um projeto open source, decididos junto com a IA'
 description: 'Começamos a construir um gerador de manuais open source usando IA em cada etapa. Na primeira parte, o nome, as checagens de disponibilidade, uma entrevista de marca e o brand book publicado.'
-date: 2026-10-28
-published: false
+date: 2026-11-03
+published: true
 tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí']
 comments: false
 ---
@@ -11,7 +11,7 @@ Quem já precisou fazer o manual de um sistema conhece o roteiro: tirar print de
 
 Decidimos construir uma ferramenta para isso e documentar a construção aqui no blog, do zero. São dois projetos open source:
 
-- **Explicaí Studio**, o app que monta o manual: captura a tela, marca os elementos com números, escreve os passos e exporta em PDF, HTML e Markdown.
+- **Explicaí Studio**, o app que monta o manual: recebe os seus prints, marca os elementos com números, organiza e formata os passos que você escreve e exporta em PDF, HTML e Markdown.
 - **Explicaí Agent**, um servidor MCP que deixa uma IA operar o Studio sozinha: abrir o sistema, capturar as telas e montar o manual.
 
 A IA participa de cada etapa, inclusive das que não são código. Esta primeira parte trata do nome e da marca. Ainda não tem nenhuma linha do app.
@@ -51,7 +51,7 @@ O que ficou decidido:
 - **Público:** dev solo ou equipe pequena de SaaS, software house e redator técnico, com o mesmo peso. Eles procuram uma ferramenta em três momentos: quando o sistema vai para o ar sem manual, quando o cliente pede o manual na entrega e quando a tela muda e o manual fica velho.
 - **Personalidade:** o professor que você gostava. Sabe muito, explica com calma e solta uma piada de vez em quando.
 - **Voz:** formal no app e na documentação, solta no blog. Os manuais gerados terão tom configurável: profissional, tranquilo ou um tom descrito em texto.
-- **Idioma:** português e inglês desde o primeiro dia. O slogan fica em português nas duas versões: "Tira o print, que o Explicaí explica."
+- **Idioma:** português e inglês desde o primeiro dia. Cada língua tem o seu slogan. Em português: "Tira o print e explica. O Explicaí monta o manual." Em inglês: "Snap it, explain it. Explicaí builds the manual." Antes era "Tira o print, que o Explicaí explica.", mas a frase dava a entender que o Explicaí escreve sozinho. Quem escreve é a pessoa; o Explicaí organiza, formata e exporta. Trocamos em 3 de novembro de 2026, e no mesmo dia o inglês ganhou o seu em vez de reaproveitar o português.
 
 Uma ideia apareceu no meio da conversa e entrou para o caderno de ideias do projeto: usar o MCP do Chrome DevTools para seguir os passos de um manual dentro do sistema e avisar quando algo quebrou. Isso resolve o terceiro momento, o do manual velho.
 
