@@ -1,27 +1,27 @@
 ---
 title: 'Explicaí #2: o editor funcionou, mas tinha cara de feito por IA'
-description: 'A primeira versão do Explicaí Studio já salvava manuais em Markdown. Ainda parecia qualquer outro app gerado por IA. Contamos como usamos a própria IA para medir o problema e decidir o que mudar.'
-date: 2026-10-28
+description: 'A primeira versão do Explicaí Studio já salvava manuais em Markdown. Ainda parecia qualquer outro app gerado por IA. Conto como usei a própria IA para medir o problema e decidir o que mudar.'
+date: 2026-11-11
 published: false
 tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí', 'Design']
 comments: false
 ---
 
-Na parte 1 definimos o nome e a marca. Nesta parte o Explicaí Studio ganhou código: um editor que roda no seu computador com `npx explicai`, organiza o manual numa árvore de páginas e salva cada página como um arquivo Markdown numa pasta.
+Na parte 1 defini o nome e a marca. Nesta parte o Explicaí Studio ganhou código: um editor que roda no seu computador com `npx explicai`, organiza o manual numa árvore de páginas e salva cada página como um arquivo Markdown numa pasta.
 
-Funcionou no primeiro dia. O problema apareceu quando olhamos a tela com calma.
+Funcionou no primeiro dia. O problema apareceu quando olhei a tela com calma.
 
 ## A primeira versão e o primeiro bug
 
-O editor usa o Tiptap, com a extensão oficial de Markdown. Um servidor local em Node lê e grava os arquivos, e a interface em React conversa com ele. Testamos tudo no navegador, do jeito que alguém usaria: criar um manual, criar uma página, escrever uma lista de passos e colar um print dentro dela.
+O editor usa o Tiptap, com a extensão oficial de Markdown. Um servidor local em Node lê e grava os arquivos, e a interface em React conversa com ele. Testei tudo no navegador, do jeito que alguém usaria: criar um manual, criar uma página, escrever uma lista de passos e colar um print dentro dela.
 
 Ao recarregar a página, a imagem tinha sumido. O print estava dentro do segundo passo da lista, o Markdown gravado deixava a imagem colada ao texto do passo, e o editor esperava uma imagem como bloco separado. Na volta, ele simplesmente descartava a imagem.
 
-Para um produto cujo princípio é "nada se perde", foi o bug certo para encontrar cedo. A correção foi tratar a imagem como elemento de linha, que é como o Markdown a representa. Depois criamos um teste que abre e salva o mesmo Markdown várias vezes e confere que nada sumiu no caminho.
+Para um produto cujo princípio é "nada se perde", foi o bug certo para encontrar cedo. A correção foi tratar a imagem como elemento de linha, que é como o Markdown a representa. Depois criei um teste que abre e salva o mesmo Markdown várias vezes e confere que nada sumiu no caminho.
 
-## Pedimos arquitetura, não só código funcionando
+## Pedi arquitetura, não só código funcionando
 
-Com o editor funcionando, pedimos à IA para seguir SOLID, KISS e DRY e separar bem as pastas. O código tinha crescido rápido e alguns arquivos já faziam coisas demais.
+Com o editor funcionando, pedi à IA para seguir SOLID, KISS e DRY e separar bem as pastas. O código tinha crescido rápido e alguns arquivos já faziam coisas demais.
 
 A refatoração separou o projeto em camadas. O núcleo cuida só do formato do manual e do disco. O servidor virou uma tabela de rotas, com um arquivo por recurso, então uma rota nova entra sem mexer no roteador. A interface ganhou pastas para código sem React, para estado e para cada funcionalidade. O `App.tsx`, que tinha perto de 300 linhas, ficou com umas 45.
 
@@ -31,7 +31,7 @@ A regra ficou gravada num arquivo de regras do Claude Code (`.claude/rules/archi
 
 Foi essa a reação ao ver o print do Studio. A tela estava limpa e funcionava, mas parecia qualquer editor gerado por IA.
 
-Em vez de mexer no visual no chute, usamos uma skill de design para o Claude Code chamada impeccable. Ela começa gravando um `PRODUCT.md` com o público, o propósito e as regras da marca, tirados da entrevista de marca da parte 1. Depois roda uma crítica com dois agentes separados, que não veem o trabalho um do outro. Um faz a revisão de design. O outro roda um detector automático no código e injeta o mesmo detector na página aberta no navegador.
+Em vez de mexer no visual no chute, usei uma skill de design para o Claude Code chamada impeccable. Ela começa gravando um `PRODUCT.md` com o público, o propósito e as regras da marca, tirados da entrevista de marca da parte 1. Depois roda uma crítica com dois agentes separados, que não veem o trabalho um do outro. Um faz a revisão de design. O outro roda um detector automático no código e injeta o mesmo detector na página aberta no navegador.
 
 A nota foi 18 de 40, numa avaliação baseada nas heurísticas de usabilidade de Nielsen. A revisão apontou sinais bem concretos:
 
@@ -44,18 +44,18 @@ A nota foi 18 de 40, numa avaliação baseada nas heurísticas de usabilidade de
 
 O detector achou duas coisas. Uma era falso positivo: ele marcou a linha fina à esquerda das citações como "faixa decorativa", mas é a marcação comum de citação. A outra era real: no tema escuro, o título da página selecionada tinha contraste de 4,3:1, abaixo do mínimo de 4,5:1. E ele deixou passar um problema que a revisão pegou: o texto de exemplo do campo de título estava praticamente invisível.
 
-Essa divisão foi o que mais aprendemos aqui. O detector é bom em regra mecânica e erra o contexto. A revisão entende o produto e não mede contraste. Precisamos das duas.
+Essa divisão foi o que mais aprendi aqui. O detector é bom em regra mecânica e erra o contexto. A revisão entende o produto e não mede contraste. Preciso das duas.
 
 ## Tailwind e shadcn, com uma condição
 
-Três dos cinco problemas da crítica pedem componentes que dão trabalho fazer direito: menu de opções em cada página, balão para editar link, aviso com "Desfazer" depois de excluir e menu `/` para inserir blocos. Todos precisam funcionar bem com teclado e leitor de tela.
+Vários problemas da crítica pedem componentes que dão trabalho fazer direito: menu de opções em cada página, balão para editar link, aviso com "Desfazer" depois de excluir e menu `/` para inserir blocos. Todos precisam funcionar bem com teclado e leitor de tela.
 
-Por isso decidimos migrar a interface para Tailwind e shadcn. O shadcn monta esses componentes sobre o Radix, que já resolve foco, teclado e acessibilidade. E o momento era bom, porque o CSS ainda era pequeno.
+Por isso decidi migrar a interface para Tailwind e shadcn. O shadcn monta esses componentes sobre o Radix, que já resolve foco, teclado e acessibilidade. E o momento era bom, porque o CSS ainda era pequeno.
 
-O risco estava claro desde o início. O visual padrão do shadcn, com fonte Inter, cinza e cantos arredondados em tudo, é justamente a aparência de boa parte dos apps gerados por IA hoje. Trocar de ferramenta não resolveria a reclamação, só a trocaria de lugar.
+O risco estava claro desde o início. O visual padrão do shadcn, com fonte Inter, cinza e cantos arredondados em tudo, é justamente a aparência de boa parte dos apps gerados por IA hoje. Trocar de ferramenta só mudaria a reclamação de lugar.
 
 A condição foi usar o shadcn pelo comportamento. Cores, fontes e raios do Tailwind vêm das variáveis do brand book: cobalto, marca-texto, nanquim, Archivo e Atkinson. O texto dentro do editor continua com um CSS próprio, porque ali é conteúdo do manual, e não interface.
 
 ## Próximo passo
 
-Agora vamos aplicar as correções dos cinco problemas em cima do Tailwind e do shadcn, conferir tudo no navegador nos dois temas e rodar a crítica de novo. Na próxima parte mostramos se a nota mudou e o que ainda ficou com cara de IA.
+Agora vou aplicar as correções desses problemas em cima do Tailwind e do shadcn, conferir tudo no navegador nos dois temas e rodar a crítica de novo. Na próxima parte mostro se a nota mudou e o que ainda ficou com cara de IA.
