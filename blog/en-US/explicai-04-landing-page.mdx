@@ -1,0 +1,64 @@
+---
+title: 'Explicaí #4: the landing page was ready, and I caught the mistake in the slogan'
+description: 'I built the Explicaí landing page in pt-BR and en-US, with a sample manual that opens on the spot. Looking at the hero, I noticed the slogan promised something Explicaí does not do, so I changed it.'
+date: 2026-11-16
+published: false
+tags: ['AI Integration', 'Claude Code', 'Open Source', 'Explicaí', 'Landing page']
+comments: false
+---
+
+In part 3 the Studio got tests and export. What was missing was a place where someone could see what it does before running anything. Until now there was only the README. This part covers the landing page: what I decided, what I threw away, and a promise error that only showed up when I looked at the finished page.
+
+## What the discovery recommended
+
+Before designing anything I ran a discovery, a round of research and decisions before building. It looked at three pages from similar tools and came back with four recommendations:
+
+- a static page on GitHub Pages, no framework;
+- one main button: copy the command `npx explicai manuais`;
+- a demo with a really exported manual, from a fictional system called "Financeiro", instead of testimonials;
+- no invented social proof and no video.
+
+The second rule comes from the brand: one solid button per screen. Explicaí has no users and no usage numbers to show (`PRODUCT.md` says so), so the page does not pretend to. The proof is the sample manual, which opens right away and is the same file the Studio exports.
+
+## Two versions of the same page
+
+I did start a new sketch inside the Studio repository (`explicai/site`). Then I saw that the older landing, in the `explicai-website` repository, already had all of it and more: an English version, the demo, three steps with screenshots, a questions section and the Pages workflow. I kept the older one and threw the sketch away. Discarding it was cheaper than maintaining two.
+
+That repository has a Portuguese page (`site/index.html`), an English one (`site/en/`), the demo in `site/demo/`, and a workflow that publishes the `site/` folder to Pages on every push to `main`. Fonts and scripts are local, with no external resources.
+
+## The slogan that promised too much
+
+The AI built the page, the screens and the review. I was the one who found the slogan problem, by looking at the hero.
+
+The slogan was "Tira o print, que o Explicaí explica." (roughly, "Take the screenshot, Explicaí explains"). Read from the outside, it suggests Explicaí writes the text by itself. It does not. Whoever uses it pastes the screenshot, writes the step and marks the image. Explicaí organizes, formats and exports. An AI writing only enters with the MCP, which has version 0.1.0 but is paused.
+
+The line was in the brand, the README, `PRODUCT.md` and the posts, and no agent questioned it. Nobody had checked what it promised.
+
+The new slogan is "Tira o print e explica. O Explicaí monta o manual." You take the screenshot and explain; Explicaí builds. I changed it in the brand, the README, `PRODUCT.md` and the posts, and the brand synthesis history records the change with its date.
+
+The change brought a second one. The old rule said to keep the slogan in Portuguese in both languages. I revoked it: the English page now says "Snap it, explain it. Explicaí builds the manual.", which keeps the rhythm of two short sentences and puts the acting verb, the person's, in the first. That also closed an open item in the brand, the English descriptive line.
+
+On the page I also fixed two more things: the hero highlight, which disappeared in the dark theme, and the social sharing image, redone with the new slogan.
+
+## The audit and the same mistake in the FAQ
+
+After the change I ran `impeccable audit`, which checks hierarchy, accessibility and responsiveness. The score was about 17 out of 20, with no P0 (the level that blocks delivery). The findings:
+
+- P1: the questions section repeated the slogan's mistake. The answer about languages said "the tone of the generated manual is professional, relaxed or whatever you describe". Explicaí writing, again. It now says the interface works in both languages and the manual is in whatever language the person writes the steps in.
+- P2: the "see a finished manual" link had a 24 px touch target. It is now 44 px.
+- P2: the English page had its H1 in Portuguese, a leftover from when the slogan stayed Portuguese in both languages.
+- P3: English social image, duplicate links and meta tags became tickets.
+
+I checked the fixes with a script, not just by eye: widths of 375 and 1280 px, light and dark theme. I also fixed a line break in the English slogan that left a single word alone in the hero.
+
+The P1 shows why the mistake was easy to repeat. A wrong idea about the product enters the text in one place and shows up in another, in different words.
+
+## Publication status
+
+The [landing page](https://gabriel-codesampaio.github.io/explicai-website/) is live, with the English version at [/en/](https://gabriel-codesampaio.github.io/explicai-website/en/). The audit changes are merged into `main` of `explicai-website`, and the workflow publishes to Pages on every push.
+
+## What stays
+
+The landing has a hero with the command, three steps with screenshots, the demo, the output formats, an open source section, the questions and a closing block with the command again. There are no testimonials, usage numbers or video. The audit scored about 17 out of 20, the P1 and P2 findings are fixed and the P3 ones are in the queue.
+
+The command on the page already works: the `explicai` package has been on npm since 0.1.0. I wrote this on November 3, with 0.2.0 as the next step; 0.2.0, 0.2.1, 0.3.0 and 1.0.0 came out afterwards. Explicaí Agent, the MCP, is at version 0.1.0 and paused.

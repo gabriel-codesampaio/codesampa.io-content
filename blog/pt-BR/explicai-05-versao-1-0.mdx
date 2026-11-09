@@ -1,0 +1,75 @@
+---
+title: 'Explicaí #5: a versão 1.0 saiu, e a promessa é que o seu manual de hoje abre daqui a um ano'
+description: 'O Studio chegou à 1.0 em 5 de novembro de 2026, em nove dias. Conto o que a 1.0 promete, o que ficou de fora, o que deu errado no caminho e quantos tokens a IA gastou para chegar lá.'
+date: 2026-11-18
+published: false
+tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí', 'Versão 1.0']
+comments: false
+---
+
+Na parte 4 a landing page ficou pronta e eu achei o erro no slogan. Desde 5 de novembro o `explicai@1.0.0` está no [npm](https://www.npmjs.com/package/explicai), com tag `v1.0.0`, release no GitHub e a página de Recursos da landing dizendo "Studio 1.0". Este post fecha essa fase: o que o número 1.0 promete, o que decidi deixar de fora, o que deu errado e quanto custou, em tokens, fazer tudo isso com a IA.
+
+## O que a 1.0 promete
+
+O Explicaí Studio é o editor local de manuais. Um manual é uma pasta com arquivos: um `manual.json`, as páginas em Markdown e, para cada imagem, um `assets/<imagem>.json` com as marcações. Quem usa o Explicaí no fluxo de entrega precisa saber que essa pasta, criada hoje, continua abrindo.
+
+A 1.0 promete o formato. A interface muda quando precisar. O formato 1 só cresce por acréscimo: campo opcional novo, valor novo numa lista. Nada some e nada muda de sentido, então `FORMAT_VERSION` continua 1. Todo manual criado desde a 0.1 abre, edita e exporta em qualquer 1.x, e o teste usa manuais de cada versão como fixture. Campos que o Studio não conhece, em `manual.json` e nos `assets/*.json`, são preservados quando ele regrava o arquivo. Se alguém abrir um manual de formato mais novo, o Studio abre só para leitura e avisa para atualizar, em vez de regravar por cima.
+
+Na discovery da 1.0 a IA listou o risco principal: congelar a coisa errada. O `PRODUCT.md` registra que o Explicaí não tem usuários nem números de uso. Prometer estabilidade a quem ainda não existe só funciona se a promessa for pequena. Por isso ela cobre o formato e nada além dele.
+
+## O que eu decidi
+
+A IA montou a discovery, com opções, riscos e uma tabela de tickets obrigatórios, desejáveis e adiáveis. As decisões foram minhas, e cinco delas moldaram a 1.0:
+
+- Só o Studio sobe para 1.0. O MCP, que deixa uma IA montar manuais, continua na 0.x e fica pausado, fora desta versão.
+- Capa e rodapé editáveis (T-147) entram antes da 1.0. A recomendação da discovery era deixar para a 1.1, e eu preferi ter isso pronto.
+- A 1.0 sai sem manuais de terceiros como prova. A discovery sugeriu dois como piso, e eu abri mão. O que cobre o buraco é a promessa de só acrescentar e um modelo de issue no GitHub para "meu manual antigo não abriu".
+- macOS e Linux são melhor esforço declarado, com CI nas três plataformas.
+- Metas de desempenho: medir antes de fixar. O chute da discovery para 500 páginas foi substituído por medições, que estão na documentação.
+
+O CHANGELOG da 1.0 tem muito mais coisa: a Aparência do manual com capa e rodapé que saem no HTML e no PDF, o diálogo de Públicos, o painel Estilo por marcação (cor, tamanho, borda e preenchimento valem só para o item selecionado), o passeio guiado no primeiro uso e a fonte por trecho. O Studio também passou a pedir Node 22.12 ou mais novo, a versão que o CI testa. Quem quiser a lista inteira lê o arquivo.
+
+## O que deu errado
+
+Três coisas aparecem nos registros do projeto.
+
+A primeira foi o teste instável. Testes de ponta a ponta (e2e), que abrem o navegador e usam a tela, às vezes falhavam sem motivo e escondiam regressões de verdade. Fechei o T-129 para a 1.0, mas o T-426 continua aberto: ele pede para tirar a tolerância que ainda existe nos e2e. A 1.0 saiu com isso na fila.
+
+A segunda foi a junção de `node_modules`. Para as IAs trabalharem em branches paralelas, cada ticket tem uma worktree (uma cópia da pasta do projeto) que aponta para o `node_modules` da pasta principal. Remover a worktree do jeito comum seguia o link e esvaziava o `node_modules` da principal. Aconteceu seis vezes. A regra agora é remover só por um script que apaga a junção, confere que sumiu e só então remove a worktree, e nunca rodar `npm install` dentro de uma worktree com junção. O conserto, quando acontece, é um `npm ci` na pasta principal.
+
+A terceira foi o custo de delegar. Cada agente começa do zero e relê o projeto. Um supervisor gasta de 50 a 120 mil tokens por chamada. Trocar uma frase do blog por um supervisor custou cerca de 51 mil, e daí saiu a regra de fazer edição pequena direto na sessão principal.
+
+## Os números da fase
+
+Do dia 28 de outubro ao dia 5 de novembro foram 9 dias de calendário e cinco versões publicadas: 0.1.0, 0.2.0, 0.2.1, 0.3.0 e 1.0.0.
+
+No repositório do Studio, até a v1.0.0: 1.065 commits, 120 PRs mergeados, 228 tickets fechados e 51.323 linhas adicionadas em 721 arquivos. Restavam 8 tickets abertos na fila. Os outros repositórios somam 53 commits na landing (`explicai-website`), 43 no MCP (v0.1.0) e 36 no plugin de workflow (v0.10.x na 1.0; hoje v0.13.1).
+
+Na v1.0.0 eram 798 testes de unidade passando (Vitest, 2 workers, cerca de 68 segundos) e cerca de 138 e2e com Playwright (hoje, 906 de unidade). O CI roda em Linux, Windows e macOS.
+
+## Quantos tokens foram
+
+Medi com um script em Node que soma os campos `usage` de todos os arquivos `.jsonl` das sessões do Claude Code na pasta do projeto: 363 arquivos, 349 deles de subagentes. Deduplicei por `message.id` e `requestId`, o que deixou 11.683 respostas do modelo, de 28 de outubro a 5 de novembro.
+
+O total é 1.611.644.970 tokens, cerca de 1,61 bilhão. Por tipo:
+
+| Tipo | Tokens |
+|---|---|
+| Entrada nova | 25.280 |
+| Saída | 7.671.651 (cerca de 7,7 mi) |
+| Escrita de cache | 41.700.264 (cerca de 41,7 mi) |
+| Leitura de cache | 1.562.247.775 (cerca de 1,56 bi) |
+
+A leitura de cache é 97% do total, e esse total bruto engana. Leitura de cache é o contexto que o modelo relê a cada chamada, e custa bem menos que token novo. Em sessões longas, cada resposta relê tudo o que veio antes, então o número cresce sem que haja trabalho novo na mesma proporção. O que pesa mais é saída mais escrita de cache, perto de 49 milhões.
+
+Duas ressalvas. A conta cobre só as sessões dessa pasta, não outras pastas nem o que o servidor cobra. E ela pode errar um pouco para menos, porque o log grava parciais de streaming. Não calculei custo em dinheiro, porque não tenho esse dado.
+
+Outros custos, registrados na época nos relatórios dos agentes:
+
+- O lote D, de 4 de novembro, juntou tickets pequenos numa branch só, com um commit por ticket e um PR. Custou cerca de 193 mil tokens, contra cerca de 800 mil nos lotes feitos com uma branch por ticket.
+- O piloto do MCP no CodeLab, com 5 páginas: 148 mil tokens novos, 1,6 milhão de cache lido e 19,5 mil de saída.
+- Um manual real pelo MCP (T-125), com 23 páginas e 17 prints: 163 mil novos, 2,8 milhões de cache e 51 mil de saída.
+
+## O que fica
+
+O Explicaí Studio 1.0 está no npm, com a promessa de formato escrita na documentação e testada com fixtures das versões antigas. Na tag havia 8 tickets abertos, 6 deles do MCP pausado, e o T-426 está entre os do Studio. A próxima fase é a fila do Studio. O MCP continua pausado, com as branches paradas, até eu decidir retomar.

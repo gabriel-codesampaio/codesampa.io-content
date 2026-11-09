@@ -1,0 +1,64 @@
+---
+title: 'Explicaí #4: a landing page ficou pronta, e eu achei o erro no slogan'
+description: 'Fiz a landing page do Explicaí em pt-BR e en-US, com um manual de exemplo aberto na hora. Ao olhar o hero, percebi que o slogan prometia o que o Explicaí não faz, e eu troquei.'
+date: 2026-11-16
+published: false
+tags: ['Integração de IA', 'Claude Code', 'Open Source', 'Explicaí', 'Landing page']
+comments: false
+---
+
+Na parte 3 o Studio ganhou testes e exportação. Faltava um lugar onde alguém pudesse ver o que ele faz antes de rodar qualquer coisa. Até aqui só existia o README. Esta parte conta a landing page: o que decidi, o que descartei e o erro de promessa que só apareceu quando eu olhei a página pronta.
+
+## O que a discovery recomendou
+
+Antes de desenhar, rodei uma discovery, que é uma rodada de pesquisa e decisão antes de construir. Ela olhou três páginas de ferramentas parecidas e chegou a quatro recomendações:
+
+- uma página estática no GitHub Pages, sem framework;
+- um único botão principal: copiar o comando `npx explicai manuais`;
+- uma demo com um manual exportado de verdade, de um sistema fictício chamado "Financeiro", no lugar de depoimento;
+- nada de prova social inventada e nada de vídeo.
+
+A segunda regra vem da marca: só um botão sólido por tela. O Explicaí não tem usuários nem números de uso para mostrar (o `PRODUCT.md` diz isso), então a página não finge ter. A prova é o manual de exemplo, que abre na hora e é o mesmo arquivo que o Studio exporta.
+
+## Duas versões da mesma página
+
+Cheguei a fazer um esboço novo dentro do repositório do Studio (`explicai/site`). Depois vi que a landing antiga, no repositório `explicai-website`, já tinha tudo isso e mais: versão em inglês, a demo, três passos com prints, uma seção de perguntas e o workflow do Pages. Fiquei com a antiga e descartei o esboço. Foi mais barato jogar fora do que manter duas.
+
+Esse repositório tem uma página em português (`site/index.html`), outra em inglês (`site/en/`), a demo em `site/demo/` e um workflow que publica a pasta `site/` no Pages a cada push na `main`. Fontes e scripts são locais, sem recurso externo.
+
+## O slogan que prometia demais
+
+A IA fez a página, as telas e a revisão. O problema do slogan quem achou fui eu, ao olhar o hero.
+
+O slogan era "Tira o print, que o Explicaí explica.". Lido de fora, dá a entender que o Explicaí escreve o texto sozinho. Ele não escreve. Quem cola o print, escreve o passo e marca a imagem é quem usa. O Explicaí organiza, formata e exporta. Uma IA escrevendo só entra com o MCP, que tem a versão 0.1.0, mas está pausado.
+
+A frase estava na marca, no README, no `PRODUCT.md` e nos posts, e nenhum agente a questionou. Ninguém tinha conferido o que ela prometia.
+
+O slogan novo é "Tira o print e explica. O Explicaí monta o manual.". Você tira o print e explica; o Explicaí monta. Troquei na marca, no README, no `PRODUCT.md` e nos posts, e o histórico da síntese da marca registra a troca com a data.
+
+A troca trouxe uma segunda mudança. A regra antiga mandava manter o slogan em português nas duas línguas. Revoguei: agora a página em inglês diz "Snap it, explain it. Explicaí builds the manual.", que mantém o ritmo de duas frases curtas e põe o verbo de quem age na primeira. Isso também fechou uma pendência da marca, a linha descritiva em inglês.
+
+Na página mexi ainda em duas coisas: o realce do herói no tema escuro, que sumia, e a imagem de compartilhamento, refeita com o slogan novo.
+
+## A auditoria e o mesmo erro no FAQ
+
+Depois da troca, rodei o `impeccable audit`, que confere hierarquia, acessibilidade e responsividade. A nota foi cerca de 17 de 20, sem nenhum problema P0 (o nível que bloqueia a entrega). Os achados:
+
+- P1: a seção de perguntas repetia o mesmo erro do slogan. A resposta sobre idioma dizia que "o tom do manual gerado é profissional, tranquilo ou o que você descrever". Ou seja, de novo o Explicaí escrevendo. Agora diz que a interface funciona nos dois idiomas e que o manual fica no idioma em que a pessoa escrever os passos.
+- P2: o link "Ver um manual pronto" tinha 24 px de área de toque. Passou a 44 px.
+- P2: a página em inglês tinha o H1 em português, resto do slogan que antes valia nas duas línguas.
+- P3: imagem social em inglês, links duplicados e metas viraram tickets.
+
+Conferi os ajustes por script, não só olhando: larguras de 375 e 1280 px, tema claro e escuro. Também corrigi uma quebra de linha do slogan em inglês que deixava uma palavra sozinha no herói.
+
+O P1 mostra por que o erro era fácil de repetir. Uma ideia errada sobre o produto entra no texto num lugar e reaparece em outro, com palavras diferentes.
+
+## Estado da publicação
+
+A [landing page](https://gabriel-codesampaio.github.io/explicai-website/) está no ar, com a versão em inglês em [/en/](https://gabriel-codesampaio.github.io/explicai-website/en/). As mudanças do audit entraram na `main` do `explicai-website`, e o workflow publica no Pages a cada push.
+
+## O que fica
+
+A landing tem hero com o comando, três passos com prints, a demo, os formatos de saída, a seção de código aberto, as perguntas e o fechamento com o comando de novo. Não há depoimento, número de uso nem vídeo. A auditoria deu cerca de 17 de 20, os achados de P1 e P2 foram corrigidos e os de P3 estão na fila.
+
+O comando da página já funciona: o pacote `explicai` está no npm desde a 0.1.0. Escrevi isto em 3 de novembro, com a 0.2.0 como próximo passo; a 0.2.0, 0.2.1, 0.3.0 e 1.0.0 saíram depois. O Explicaí Agent, o MCP, tem a versão 0.1.0 e está pausado.
